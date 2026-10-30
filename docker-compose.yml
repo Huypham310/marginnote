@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: marginnote
+      POSTGRES_PASSWORD: marginnote
+      POSTGRES_DB: marginnote
+    ports:
+      - "5433:5432" # 5433 so it doesn't clash with a local postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U marginnote"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:

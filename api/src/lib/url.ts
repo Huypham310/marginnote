@@ -13,16 +13,14 @@ export function normalizeUrl(input: string): string {
   }
   url.hash = "";
   url.hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+  // "https://a.com/x/" và "https://a.com/x" là cùng một trang, kể cả khi có query string
+  if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/+$/, "");
 
   const kept = [...url.searchParams.entries()]
     .filter(([key]) => !TRACKING_PARAMS.some((re) => re.test(key)))
     .sort(([a], [b]) => a.localeCompare(b));
   url.search = new URLSearchParams(kept).toString();
-
-  let out = url.toString();
-  // "https://a.com/x/" và "https://a.com/x" là cùng một trang
-  if (url.pathname !== "/" && out.endsWith("/") && !url.search) out = out.slice(0, -1);
-  return out;
+  return url.toString();
 }
 
 export function domainOf(normalizedUrl: string): string {

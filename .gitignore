@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# extension build output (load this folder unpacked in Chrome)
+extension/dist/
+
+# env
+.env
+.env.local
+
+# misc
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+AGENTS.md

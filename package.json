@@ -1,0 +1,12 @@
+{
+  "name": "marginnote",
+  "private": true,
+  "workspaces": [
+    "api",
+    "extension"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w api",
+    "build:extension": "npm run build -w extension"
+  }
+}

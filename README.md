@@ -51,6 +51,22 @@ npm run dev -w api       # http://localhost:4000
 
 `q` accepts web-search syntax (`react hooks`, `"exact phrase"`, `-class`). Invalid input returns `400` with the failing fields, unknown ids `404`. Set `API_TOKEN` to require `Authorization: Bearer <token>`.
 
+## Extension
+
+Chrome Manifest V3, React + TypeScript, built with Vite.
+
+- Select text on any page and click the floating **Highlight** button, use the context menu, or press **Alt+Shift+H**
+- Highlights are stored with a text-quote anchor (`exact` + 32 chars of `prefix`/`suffix`) and repainted when you come back, even when the same sentence appears twice on the page or the selection spans several elements
+- The popup lists the page's highlights: click to scroll to one, edit the note, change color, delete
+- **Summarize this page** runs a summarization model locally with Transformers.js (t5-small ~75 MB, or distilbart-cnn ~270 MB, picked in the options page). ONNX Runtime ships inside the extension because MV3 forbids loading code from a CDN; only the model weights are downloaded from the Hugging Face Hub, once
+- The content script never calls the API itself (page CORS would block it); the service worker does
+
+```bash
+npm run build -w extension
+```
+
+Then open `chrome://extensions`, enable Developer mode, **Load unpacked**, and pick `extension/dist`. Set the API URL (and token, if any) on the extension's options page.
+
 ## License
 
 MIT

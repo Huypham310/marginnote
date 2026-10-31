@@ -27,6 +27,30 @@ npm run migrate -w api
 npm run seed -w api      # 25 fake pages / 100 highlights (Faker, fixed seed)
 ```
 
+## API
+
+Express 5 + TypeScript, request validation with zod, migrations run on startup.
+
+```bash
+npm run dev -w api       # http://localhost:4000
+```
+
+| Method | Path | Description |
+| --- | --- | --- |
+| GET | `/health` | Database status (never needs a token) |
+| POST | `/highlights` | Save a highlight; creates the page from its URL if needed |
+| GET | `/highlights?url=` | Highlights on one page, so the extension can repaint them |
+| PATCH | `/highlights/:id` | Change note, color or tags |
+| DELETE | `/highlights/:id` | Delete a highlight |
+| GET | `/pages` | Pages with highlight counts, most recently highlighted first (`limit`, `offset`, `domain`) |
+| GET | `/pages/:id` | One page with all its highlights |
+| PATCH | `/pages/:id` | Update title or the in-browser summary |
+| GET | `/pages/:id/export.md` | Page and highlights as Markdown |
+| GET | `/search` | Full-text search with `<mark>` snippets (`q`, `tag`, `color`, `limit`, `offset`) |
+| GET | `/tags` | Tags with usage counts |
+
+`q` accepts web-search syntax (`react hooks`, `"exact phrase"`, `-class`). Invalid input returns `400` with the failing fields, unknown ids `404`. Set `API_TOKEN` to require `Authorization: Bearer <token>`.
+
 ## License
 
 MIT

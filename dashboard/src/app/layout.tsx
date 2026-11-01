@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+import { ActiveNavLink, NavLink } from "@/components/NavLink";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,11 +24,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/" className="font-semibold tracking-tight">
               Margin<span className="bg-yellow-200 px-0.5">Note</span>
             </Link>
-            {NAV.map((n) => (
-              <Link key={n.href} href={n.href} className="text-sm text-slate-600 hover:text-slate-900">
-                {n.label}
-              </Link>
-            ))}
+            <Suspense fallback={NAV.map((n) => <NavLink key={n.href} {...n} />)}>
+              {NAV.map((n) => <ActiveNavLink key={n.href} {...n} />)}
+            </Suspense>
           </nav>
         </header>
         <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6">{children}</main>

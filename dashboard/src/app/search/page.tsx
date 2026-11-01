@@ -9,7 +9,8 @@ import { Snippet } from "@/components/Snippet";
 import { api } from "@/lib/api";
 import { BORDER } from "@/lib/colors";
 import { first, pageNumber, plural, timeAgo } from "@/lib/format";
-import { COLORS, type Paged, type SearchHit, type TagCount } from "@/lib/types";
+import { isTag } from "@/lib/tags";
+import { COLORS, type Color, type Paged, type SearchHit, type TagCount } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Search" };
 
@@ -28,9 +29,13 @@ export default function SearchPage({ searchParams }: PageProps<"/search">) {
 
 async function SearchBody({ searchParams }: Pick<PageProps<"/search">, "searchParams">) {
   const sp = await searchParams;
-  const q = first(sp.q)?.trim() ?? "";
-  const tag = first(sp.tag) ?? "";
-  const color = first(sp.color) ?? "";
+  // the API answers 400 for a bad color/tag or a >200 char query; a hand-edited URL
+  // shouldn't blank the whole page, so just drop what it wouldn't accept
+  const q = (first(sp.q) ?? "").trim().slice(0, 200);
+  const rawTag = first(sp.tag)?.toLowerCase() ?? "";
+  const tag = isTag(rawTag) ? rawTag : "";
+  const rawColor = first(sp.color) ?? "";
+  const color = COLORS.includes(rawColor as Color) ? rawColor : "";
   const page = pageNumber(sp.page);
 
   let results: Paged<SearchHit>;

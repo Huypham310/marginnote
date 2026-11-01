@@ -2,6 +2,10 @@
 const TAG_RE = /^[a-z0-9][a-z0-9-]*$/;
 export const MAX_TAGS = 10;
 
+export function isTag(s: string): boolean {
+  return s.length <= 32 && TAG_RE.test(s);
+}
+
 /**
  * Parses what the user typed in the tags box ("React, ml  #todo") into API tags.
  * Returns an error string instead of throwing so the form can show it.
@@ -12,7 +16,7 @@ export function parseTags(input: string): { tags: string[] } | { error: string }
     // people type "#tag" out of habit, strip it
     const t = raw.replace(/^#/, "").trim().toLowerCase();
     if (!t) continue;
-    if (t.length > 32 || !TAG_RE.test(t)) return { error: `"${raw}" isn't a valid tag (letters, digits, dashes)` };
+    if (!isTag(t)) return { error: `"${raw}" isn't a valid tag (letters, digits, dashes)` };
     if (!tags.includes(t)) tags.push(t);
   }
   if (tags.length > MAX_TAGS) return { error: `At most ${MAX_TAGS} tags` };

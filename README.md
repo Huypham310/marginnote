@@ -2,11 +2,11 @@
 
 Highlight text and write notes on any web page, see them again when you come back, search everything later, and get a quick summary of a page from a small model that runs inside the browser.
 
-Work in progress. Planned parts:
+Work in progress. Parts:
 
 - `extension/`: Chrome extension (Manifest V3, React, TypeScript, Vite) for highlighting, notes and in-browser summaries with Transformers.js
 - `api/`: Express + TypeScript API that syncs notes to PostgreSQL with full-text search
-- `dashboard/`: Next.js library for browsing, searching and exporting notes
+- `dashboard/`: Next.js app for browsing, searching, editing and exporting notes
 
 No paid APIs: summarization runs locally in the browser.
 
@@ -66,6 +66,22 @@ npm run build -w extension
 ```
 
 Then open `chrome://extensions`, enable Developer mode, **Load unpacked**, and pick `extension/dist`. Set the API URL (and token, if any) on the extension's options page.
+
+## Dashboard
+
+Next.js 16 (App Router, Cache Components) + Tailwind CSS.
+
+- **Library**: pages with highlight counts, most recently highlighted first, paged, filter by domain
+- **Page view**: summary and highlights; edit the note and tags, change color or delete inline; **Export .md** downloads the page as Markdown
+- **Search**: full-text search with web-search syntax, matched words marked, filter by tag and color
+- **Tags**: tag cloud, each tag links to its search results
+
+All API calls run on the server (server components, server actions and one route handler for the export), so `API_TOKEN` never reaches the browser. Search snippets are rendered as text with only the `<mark>` tags turned into elements, because `ts_headline` doesn't escape the highlight text.
+
+```bash
+cp dashboard/.env.example dashboard/.env.local   # API_URL, API_TOKEN
+npm run dev -w dashboard                          # http://localhost:3000
+```
 
 ## License
 

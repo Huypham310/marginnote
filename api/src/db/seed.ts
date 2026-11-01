@@ -13,7 +13,8 @@ export async function seed(pool: pg.Pool, pages = 25, seedValue = 42): Promise<n
   faker.seed(seedValue);
   let highlights = 0;
   for (let i = 0; i < pages; i++) {
-    const url = normalizeUrl(`${faker.internet.url()}/${faker.lorem.slug()}`);
+    // faker's url already ends with "/", so resolve the slug against it instead of concatenating
+    const url = normalizeUrl(new URL(faker.lorem.slug(), faker.internet.url()).href);
     const { rows } = await pool.query<{ id: string }>(
       `INSERT INTO pages (url, domain, title)
        VALUES ($1, $2, $3)
@@ -22,6 +23,8 @@ export async function seed(pool: pg.Pool, pages = 25, seedValue = 42): Promise<n
       [url, domainOf(url), faker.lorem.sentence({ min: 3, max: 8 })],
     );
     const pageId = rows[0].id;
+    // chạy seed lại thì xóa highlight cũ của page này, không thì bị nhân đôi
+    await pool.query("DELETE FROM highlights WHERE page_id = $1", [pageId]);
 
     const count = faker.number.int({ min: 1, max: 6 });
     for (let j = 0; j < count; j++) {

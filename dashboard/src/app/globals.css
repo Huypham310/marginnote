@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  @apply bg-slate-50 text-slate-800;
+}
+
+/* search snippets come back from postgres ts_headline wrapped in <mark> */
+mark {
+  @apply rounded-sm bg-yellow-200 px-0.5 text-inherit;
+}

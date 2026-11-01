@@ -6,6 +6,19 @@ export function isTag(s: string): boolean {
   return s.length <= 32 && TAG_RE.test(s);
 }
 
+// 4 font sizes are plenty for a personal tag cloud
+const SIZES = ["text-sm", "text-base", "text-lg", "text-2xl"];
+
+/**
+ * Maps a tag count onto SIZES, linear between the smallest and biggest count.
+ * Not log scale: personal tag counts sit close together (7..15) and log makes them all huge.
+ */
+export function sizeClass(count: number, min: number, max: number): string {
+  if (max <= min) return SIZES[1];
+  const t = (count - min) / (max - min);
+  return SIZES[Math.min(SIZES.length - 1, Math.floor(t * SIZES.length))];
+}
+
 /**
  * Parses what the user typed in the tags box ("React, ml  #todo") into API tags.
  * Returns an error string instead of throwing so the form can show it.

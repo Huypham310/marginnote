@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ErrorNote } from "@/components/ErrorNote";
+import { HighlightItem } from "@/components/HighlightItem";
 import { ListSkeleton } from "@/components/PageCard";
 import { ApiError, api } from "@/lib/api";
-import { BORDER } from "@/lib/colors";
-import { plural, timeAgo } from "@/lib/format";
+import { plural } from "@/lib/format";
 import { parseId } from "@/lib/ids";
 import type { PageDetail } from "@/lib/types";
 
@@ -57,20 +57,7 @@ async function PageBody({ params }: Pick<PageProps<"/pages/[id]">, "params">) {
       )}
 
       <ul className="mt-6 grid gap-4">
-        {page.highlights.map((h) => (
-          <li key={h.id} className={`rounded-md border-l-4 bg-white p-4 ring-1 ring-slate-200 ${BORDER[h.color]}`}>
-            <blockquote className="whitespace-pre-line text-slate-800">{h.text}</blockquote>
-            {h.note && <p className="mt-2 whitespace-pre-line text-sm text-slate-600">{h.note}</p>}
-            <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-400">
-              {h.tags.map((t) => (
-                <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`} className="text-slate-500 hover:text-slate-800">
-                  #{t}
-                </Link>
-              ))}
-              <span>{timeAgo(h.createdAt)}</span>
-            </div>
-          </li>
-        ))}
+        {page.highlights.map((h) => <HighlightItem key={h.id} h={h} />)}
       </ul>
       {page.highlights.length === 0 && (
         <p className="mt-6 text-sm text-slate-500">No highlights left on this page.</p>

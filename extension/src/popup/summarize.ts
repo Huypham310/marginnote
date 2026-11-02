@@ -1,5 +1,6 @@
 import { env, pipeline, type SummarizationPipeline } from "@huggingface/transformers";
 import { SUMMARY_MODELS, type SummaryModel } from "../shared/settings";
+import { trimInput } from "./trim";
 
 // MV3 forbids loading code from a CDN, so ONNX Runtime ships inside the extension:
 // the JS glue is copied to dist/ort by vite.config.ts, the .wasm is emitted by Vite into assets/.
@@ -44,12 +45,7 @@ export async function summarize(
   model: SummaryModel,
   onProgress: (p: Progress) => void = () => {},
 ): Promise<{ summary: string; truncated: boolean }> {
-  const limit = MAX_INPUT_CHARS[model];
-  const truncated = text.length > limit;
-  // cắt ở ranh giới câu gần nhất để model không nhận nửa câu
-  let input = text.slice(0, limit);
-  if (truncated) input = input.slice(0, Math.max(input.lastIndexOf(". ") + 1, limit / 2));
-
+  const { input, truncated } = trimInput(text, MAX_INPUT_CHARS[model]);
   const pipe = await getPipeline(model, onProgress);
   const [out] = (await pipe(SUMMARY_MODELS[model].prefix + input, {
     max_new_tokens: 120,

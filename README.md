@@ -83,6 +83,24 @@ cp dashboard/.env.example dashboard/.env.local   # API_URL, API_TOKEN
 npm run dev -w dashboard                          # http://localhost:3000
 ```
 
+## Testing
+
+Vitest in all three workspaces (175 tests):
+
+| Part | Tests | Line coverage | What runs |
+| --- | --- | --- | --- |
+| `api` | 72 | 93% | Every route through Supertest against a real PostgreSQL (full-text search needs real `tsvector`), plus unit tests for URL normalization, Markdown export and the zod schemas |
+| `extension` | 28 | 93% | Text-quote anchoring and highlight wrapping/unwrapping in jsdom, input trimming for the summarizer, API client and messaging with a fake `chrome` |
+| `dashboard` | 75 | 98% | Lib helpers, components with Testing Library, server actions, the export route, and the async page views with a mocked API |
+
+The API tests drop and recreate a separate `marginnote_test` database on every run, so the dev data is never touched. Point `TEST_DATABASE_URL` elsewhere if your Postgres isn't the one from `docker compose`.
+
+```bash
+docker compose up -d db
+npm test              # all workspaces
+npm run coverage      # + coverage reports in <workspace>/coverage/
+```
+
 ## License
 
 MIT

@@ -13,7 +13,8 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}"],
-      exclude: ["src/**/*.test.{ts,tsx}"],
+      // route shells only wrap a view in <Suspense>; the views themselves are tested
+      exclude: ["src/**/*.test.{ts,tsx}", "src/app/**/{page,layout,not-found}.tsx"],
       reporter: ["text", "html", "json-summary"],
     },
   },

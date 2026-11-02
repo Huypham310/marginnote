@@ -14,5 +14,32 @@ services:
       interval: 5s
       retries: 10
 
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      DATABASE_URL: postgres://marginnote:marginnote@db:5432/marginnote
+      API_TOKEN: ${API_TOKEN:-}
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    environment:
+      # server-side only: the browser never talks to the API directly
+      API_URL: http://api:4000
+      API_TOKEN: ${API_TOKEN:-}
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
 volumes:
   pgdata:

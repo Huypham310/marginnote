@@ -101,6 +101,20 @@ npm test              # all workspaces
 npm run coverage      # + coverage reports in <workspace>/coverage/
 ```
 
+## Docker
+
+The API and dashboard have multi-stage Dockerfiles (built from the repo root, since the workspaces share one lockfile). The dashboard uses Next.js standalone output, so the image only carries the modules the server actually imports.
+
+```bash
+docker compose up --build        # db + api (:4000) + dashboard (:3000)
+```
+
+Migrations run when the API starts. Set `API_TOKEN` in the environment to protect the API; the dashboard gets the same token and keeps it server-side.
+
+## CI
+
+GitHub Actions runs on every push and pull request: the API job type-checks and runs its tests against a PostgreSQL service container, the extension and dashboard jobs type-check, lint, and test, and a last job builds both Docker images.
+
 ## License
 
 MIT

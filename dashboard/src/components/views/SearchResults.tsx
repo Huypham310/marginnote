@@ -51,7 +51,9 @@ export async function SearchResults({ searchParams }: { searchParams: SearchPara
         {results.items.map((h) => (
           <li key={h.id} className={`rounded-md border-l-4 bg-white p-4 ring-1 ring-slate-200 ${BORDER[h.color]}`}>
             <p className="text-slate-800">
-              {h.snippet ? <Snippet snippet={h.snippet} /> : h.text}
+              {/* when only the note matched, ts_headline returns a cut-off piece of the text
+                  with nothing marked; the whole highlight reads better then */}
+              {h.snippet?.includes("<mark>") ? <Snippet snippet={h.snippet} /> : h.text}
             </p>
             {h.note && <p className="mt-1 line-clamp-2 text-sm text-slate-500">{h.note}</p>}
             <div className="mt-2 flex flex-wrap items-center gap-x-3 text-xs text-slate-500">

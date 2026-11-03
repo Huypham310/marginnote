@@ -112,6 +112,19 @@ describe("SearchResults", () => {
     expect((screen.getByLabelText("Tag") as HTMLSelectElement).value).toBe("react");
   });
 
+  it("shows the full text when only the note matched", async () => {
+    api.search.mockResolvedValue({
+      items: [hit({ text: "Mocks agree with whatever you told them; only a real database tells you", snippet: "Mocks agree with whatever you told them; only a real", note: "tests run on postgres" })],
+      total: 1,
+      limit: 20,
+      offset: 0,
+    });
+    api.tags.mockResolvedValue([]);
+    const { container } = render(await SearchResults({ searchParams: sp({ q: "postgres" }) }));
+    expect(screen.getByText(/only a real database tells you/)).toBeTruthy();
+    expect(container.querySelector("mark")).toBeNull();
+  });
+
   it("still renders the form when the API is down", async () => {
     api.search.mockRejectedValue(new ApiError(503, "Can't reach the MarginNote API"));
     api.tags.mockResolvedValue([]);

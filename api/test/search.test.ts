@@ -37,6 +37,31 @@ describe("GET /search", () => {
     expect(res.body.items[0]).toMatchObject({ pageTitle: "Notes", url: "https://example.com/article" });
   });
 
+  it("finds highlights by tag, ranked below text matches", async () => {
+    // "todo" only appears as a tag: before tags were indexed this found nothing
+    const tagOnly = await t.http().get("/search").query({ q: "todo" }).expect(200);
+    expect(texts(tagOnly.body).sort()).toEqual(["Something unrelated", "The quick brown fox jumps"]);
+
+    // both rows are tagged react, only one says it in the text: that one ranks first
+    const react = await t.http().get("/search").query({ q: "react" }).expect(200);
+    expect(texts(react.body)).toEqual([
+      "React hooks run on every render",
+      "The quick brown fox jumps",
+    ]);
+  });
+
+  it("re-indexes a highlight when its tags change", async () => {
+    const created = await t
+      .http()
+      .post("/highlights")
+      .send(newHighlight({ text: "Plain sentence", tags: [], title: "Notes" }))
+      .expect(201);
+    expect((await t.http().get("/search").query({ q: "kubernetes" })).body.total).toBe(0);
+    await t.http().patch(`/highlights/${created.body.id}`).send({ tags: ["kubernetes"] }).expect(200);
+    const res = await t.http().get("/search").query({ q: "kubernetes" }).expect(200);
+    expect(texts(res.body)).toEqual(["Plain sentence"]);
+  });
+
   it("understands web-search syntax", async () => {
     const neg = await t.http().get("/search").query({ q: "postgres -indexes" }).expect(200);
     expect(texts(neg.body)).toEqual(["Something unrelated"]);

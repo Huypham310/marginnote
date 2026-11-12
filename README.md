@@ -11,7 +11,7 @@ Highlight text and write notes on any web page, see them again when you come bac
 - **Chrome extension (Manifest V3)**: highlight with a floating button, the context menu or Alt+Shift+H; notes and 5 colors from the popup (tags are edited in the dashboard)
 - **Highlights survive page changes**: each one is stored as a W3C-style text-quote anchor (the quote plus 32 characters of context on each side) instead of DOM positions, so it is found and repainted on the next visit, even when the sentence appears twice or the selection spans several elements
 - **On-device summaries**: Transformers.js runs a quantized t5-small (~75 MB) or DistilBART (~270 MB) model in the browser through ONNX Runtime Web; only the weights are downloaded, once
-- **Full-text search** in PostgreSQL: generated, weighted `tsvector` column with a GIN index, web-search syntax (`"exact phrase"`, `-word`, `or`), matched words marked in the results
+- **Full-text search** in PostgreSQL: generated, weighted `tsvector` column (highlight text > note > tags) with a GIN index, web-search syntax (`"exact phrase"`, `-word`, `or`), matched words marked in the results
 - **Dashboard** (Next.js 16): library, page view with inline editing and Markdown export, search, tag cloud; every API call runs on the server so the token never reaches the browser
 - **175+ tests** (Vitest, Supertest against a real PostgreSQL), Docker Compose for the full stack, GitHub Actions CI in 4 parallel jobs
 
@@ -109,6 +109,7 @@ Two tables (`api/migrations/001_init.sql`):
 | Summaries on the device | Pages people read can be private and a paid LLM API costs money per page; small quantized models are good enough for a first-look summary |
 | ONNX Runtime bundled in the extension | Manifest V3 forbids loading code from a CDN; only model weights (data) are downloaded |
 | PostgreSQL full-text search, no Elasticsearch | One database to run; a generated column keeps the index in sync without triggers |
+| Tags in the search vector through an IMMUTABLE wrapper | Generated columns only accept IMMUTABLE functions and `array_to_string` is declared STABLE; for `text[]` it can't change, so `tags_to_text()` wraps it (migration 002 drops and re-adds the column, which re-indexes existing rows) |
 | API calls from the dashboard server, not the browser | Keeps `API_TOKEN` out of client bundles |
 | Search snippets rendered as text, only `<mark>` turned into elements | `ts_headline` does not escape the highlighted text, so `dangerouslySetInnerHTML` would be an XSS hole |
 | Integration tests against a real PostgreSQL | Full-text ranking, `ON CONFLICT` and generated columns can't be faked convincingly with mocks |
